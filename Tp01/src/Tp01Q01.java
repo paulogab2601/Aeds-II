@@ -1,5 +1,3 @@
-package Tp01; //COMPLETO
-
 import java.util.Scanner;
 
 public class Tp01Q01 {
@@ -40,6 +38,7 @@ public class Tp01Q01 {
 	public static void main(String[] args) {
 
 		Scanner verde = new Scanner(System.in);
+		System.out.println("TESTE");
 
 		String frase = verde.nextLine();
 

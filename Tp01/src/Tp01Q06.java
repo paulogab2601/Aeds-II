@@ -1,5 +1,3 @@
-package Tp01; //INCOMPLETO
-
 public class Tp01Q06 {
 
 	public static boolean ehVogal(String str) // OK

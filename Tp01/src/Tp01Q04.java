@@ -1,5 +1,3 @@
-package Tp01; //INCOMPLETO
-
 import java.util.Random;
 
 public class Tp01Q04 {
