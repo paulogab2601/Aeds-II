@@ -54,7 +54,7 @@ public class Tp01Q18 {
 
     public static void main(String args[]) {
 
-        Scanner sc = new Scanner(System.in)
+        Scanner sc = new Scanner(System.in);
         String palavra = sc.nextLine();
 
         while (!FIM(palavra)) {
@@ -69,5 +69,6 @@ public class Tp01Q18 {
                 palavra = sc.nextLine();
             }
         }
+        sc.close();
     }
 }
