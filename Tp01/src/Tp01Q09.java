@@ -2,27 +2,51 @@ import java.util.Scanner;
 
 public class Tp01Q09 {
 
-    // Bubble Sort (aula do max no canvas)
-    public static boolean Anagrama(String str1, String str2) {
-        // strings de tamanho != nao podem ser anagramas
+    public static boolean Anagrama(String str) {
+
+        str = str.toLowerCase(); //passa toda a string para minusculo
+
+        int Isep = -1; //index do separador
+
+        for (int i = 0; i < str.length(); i++) //procura o separador
+         {
+            if (str.charAt(i) == '-') {
+                Isep = i;
+                break;
+            }
+        }
+
+        if (Isep == -1) {
+            return false;
+        }
+
+        String str1 = "";
+        String str2 = "";
+        //reconstroi as strings
+        for (int i = 0; i < Isep; i++) {
+            str1 += str.charAt(i);
+        }
+        for (int i = Isep + 1; i < str.length(); i++) {
+            str2 += str.charAt(i);
+        }
+
+        //verifica se as strings possuem tamanhos iguais
         if (str1.length() != str2.length()) {
             return false;
         }
 
-        int[] contador = new int[256]; // todos ASCII
+        int[] contador = new int[256];
 
         for (int i = 0; i < str1.length(); i++) {
-            contador[str1.charAt(i)]++; // avança o 1° ponteiro
-            contador[str2.charAt(i)]--; // recua o 2° ponteiro
+            contador[str1.charAt(i)]++;
+            contador[str2.charAt(i)]--;
         }
 
-        for (int i = 0; i < 256; i++)// Se for tudo 0, é um anagrama
-        {
+        for (int i = 0; i < 256; i++) {
             if (contador[i] != 0) {
                 return false;
             }
         }
-
         return true;
     }
 
@@ -49,25 +73,16 @@ public class Tp01Q09 {
         Scanner sc = new Scanner(System.in);
 
         String str = sc.nextLine();
-        String str2 = sc.nextLine();
-        boolean resultado = Anagrama(str, str2);
 
         while (!FIM(str)) {
-            if (resultado) {
+
+            if (Anagrama(str)) {
                 System.out.println("SIM");
             } else {
-                System.out.println("NAO");
+                System.out.println("N\u00c3O"); //Usei o unicode
             }
             str = sc.nextLine();
-
-            if (FIM(str)) {
-               break;
-            }
-            str2 = sc.nextLine();
-            resultado = Anagrama(str, str2);
-
         }
-
         sc.close();
     }
 }

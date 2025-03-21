@@ -1,34 +1,59 @@
 import java.util.Random;
+import java.util.Scanner;
 
 public class Tp01Q04 {
 
-	public static String randomizador(String str) {
+    public static String Randomizador(String str, char TempC, char substituto){
+        String newStr = new String(); //cria uma nova string
+        for (int i = 0; i < str.length(); i++) {
+            if (str.charAt(i)!= TempC) {
+                newStr = newStr + str.charAt(i); //se o caracter for igual, mantem
+            }else{
+                newStr = newStr + substituto;//se for diferente troca
+            }
+        }
+        return newStr;
+    }
 
-		Random gerador = new Random();
-		gerador.setSeed(4);
-		
+	public static boolean FIM(String str) // Encerra o programa
+    {
 
-		char l1 = (char) ('a' + (Math.abs(gerador.nextInt()) % 26)); //sorteia as letras
-		char l2 = (char) ('a' + (Math.abs(gerador.nextInt()) % 26));
+        String FIM = "FIM";
 
-		char[] resultado = new char[str.length()]; // Cria um array de char para manipular a string
+        if (str.length() != FIM.length()) {
+            return false;
+        }
 
-		for (int i = 0; i < str.length(); i++) // Substitui a letra em tofas as suas incidencias
-		{
-			if (str.charAt(i) == l1) {
-				resultado[i] = l2;
-			} else {
-				resultado[i] = str.charAt(i); //Se a letra for diferente de l1, coloca a letra original
-			}
-		}
+        for (int i = 0; i < str.length(); i++) {
+            if (str.charAt(i) != FIM.charAt(i)) {
+                return false;
+            }
+        }
 
-		return new String(resultado);
-	};
+        return true;
+    }
+    
+    public static void main(String[] args) {
+        
+        char TempC;
+        char substituto;
 
-	public static void main(String[] args) {
+        Random gerador = new Random();
+        gerador.setSeed(4);
 
-		System.out.printf("%s \n", randomizador("o rato roeu a roupa do rei de roma	"));
+        Scanner sc = new Scanner(System.in);
+        String str = sc.nextLine();
+        String newStr= "";
 
-	}
+        while (!FIM(str)) {
+            TempC  =  ( char ) ( 'a' + ( Math.abs( gerador.nextInt( ) ) % 26 ) );
+            substituto = ( char ) ( 'a' + ( Math.abs( gerador.nextInt( ) ) % 26 ) );
+            newStr = Randomizador(str, TempC, substituto);
+            System.out.println(newStr);
+			str = sc.nextLine();
 
+        }
+        sc.close();
+    }
+    
 }
