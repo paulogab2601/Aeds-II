@@ -13,7 +13,7 @@ public class Tp01Q05 {
 
     public static String substring(String str, int start, int end) {
         String newStr = new String();
-
+        
         for (int i = start; i < end; i++) {
             newStr += str.charAt(i);
         }
