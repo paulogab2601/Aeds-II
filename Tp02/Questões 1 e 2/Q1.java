@@ -225,8 +225,7 @@ class Show {
     }
 }
 
-public class Main {
-    // NA HORA DE ENVIAR, TALVEZ PRECISE COLOCAR PUBLIC CLASS MAIN
+class Q1 {
     // Metodo pra ajudar a cortar a string da forma correta
     public static String[] parseCSVLine(String line) {
         List<String> tokens = new ArrayList<>();
@@ -248,7 +247,7 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        String csvFilePath = "tmp/disneyplus.csv"; //COLOCAR "/" ANTES DE TMP NA HORA DE ENVIAR
+        String csvFilePath = "tmp/disneyplus.csv";
         Scanner scanner = new Scanner(System.in);
 
         // Carrega todos os dados em memória
@@ -267,6 +266,30 @@ public class Main {
         }
 
         // Loop de entrada de IDs
+        while (scanner.hasNextLine()) {
+            String inputId = scanner.nextLine().trim();
+
+            if (inputId.equalsIgnoreCase("FIM")) {
+                break;
+            }
+
+            boolean found = false;
+            Show show = new Show();
+
+            for (String[] fields : allRows) {
+                if (fields.length >= 11 && fields[0].trim().equals(inputId)) {
+                    String input = String.join("##", fields);
+                    show.ler(input);
+                    show.imprimir();
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) {
+                System.out.println("Show com ID " + inputId + " não encontrado.");
+            }
+        }
 
         scanner.close();
     }
