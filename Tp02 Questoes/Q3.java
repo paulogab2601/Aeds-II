@@ -1,5 +1,3 @@
-//Questão 05, 98,2% na publica e 85,9% na privada
-
 import java.io.*;
 import java.util.*;
 import java.text.*;
@@ -180,8 +178,9 @@ class Show {
 
         System.out.println(" => "
                 + (showId != null && !showId.isEmpty() ? showId : "NaN") + " ## "
-                + (title != null && !title.isEmpty() ? title : "NaN") + " ## "
                 + (type != null && !type.isEmpty() ? type : "NaN") + " ## "
+                + (title != null && !title.isEmpty() ? title : "NaN")
+                + " ## "
                 + (director != null && !director.isEmpty() ? director : "NaN") + " ## "
                 + castString + " ## "
                 + (country != null && !country.isEmpty() ? country : "NaN") + " ## "
@@ -226,7 +225,7 @@ class Show {
     }
 }
 
-public class Q5 {
+public class Q3 {
     // NA HORA DE ENVIAR, TALVEZ PRECISE COLOCAR PUBLIC CLASS MAIN
     // Metodo pra ajudar a cortar a string da forma correta
     public static String[] parseCSVLine(String line) {
@@ -267,90 +266,61 @@ public class Q5 {
             return;
         }
 
-        // 1. Le IDs
-        List<Show> showsSelecionados = new ArrayList<>();
-        while (true) {
-            String id = scanner.nextLine();
-            if (id.equals("FIM"))
-                break;
+        // Lê os IDs
+        List<Show> lista = new ArrayList<>();
+        String entrada;
 
+        while (!(entrada = scanner.nextLine()).equals("FIM")) {
             for (String[] row : allRows) {
-                if (row[0].equals(id)) {
-                    String[] cast = row[4].replaceAll("[\\[\\]]", "").split(", ");
-                    String[] listedIn = row[10].replaceAll("[\\[\\]]", "").split(", ");
-                    Show show = new Show(
-                            row[0], // showId
-                            row[1], // type
-                            row[2], // title
-                            row[3], // director
-                            cast,
-                            row[5], // country
-                            row[6], // dateAdded
-                            Integer.parseInt(row[7]), // releaseYear
-                            row[8], // rating
-                            row[9], // duration
-                            listedIn);
-                    showsSelecionados.add(show);
+                if (row[0].equals(entrada)) {
+                    Show s = new Show();
+                    String cast = row[4].isEmpty() ? "NaN" : row[4];
+                    String listedIn = row[10].isEmpty() ? "NaN" : row[10];
+
+                    String input = row[0] + "##" + row[2] + "##" + row[1] + "##" + row[3] + "##" + cast + "##" + row[5]
+                            +
+                            "##" + (row[6].isEmpty() ? "NaN" : row[6]) + "##" + row[7] + "##" + row[8] + "##" + row[9]
+                            + "##" + listedIn;
+
+                    s.ler(input);
+                    lista.add(s);
                     break;
                 }
             }
         }
 
+        // Leitura dos titulos pesquisados
+        List<String> pesquisas = new ArrayList<>();
+        while (!(entrada = scanner.nextLine()).equals("FIM")) {
+            pesquisas.add(entrada);
+        }
+
+        // Busca sequencial
+        long inicio = System.nanoTime();
         int comparacoes = 0;
-        int movimentacoes = 0;
-        long inicio = System.currentTimeMillis();
 
-        // 2. Ordenar por título (Seleção)
-        for (int i = 0; i < showsSelecionados.size() - 1; i++) {
-            int minIndex = i;
-            for (int j = i + 1; j < showsSelecionados.size(); j++) {
-                String titleJ = showsSelecionados.get(j).getTitle();
-                String titleMin = showsSelecionados.get(minIndex).getTitle();
-
-                String[] partsJ = titleJ.split(":", 2);
-                String[] partsMin = titleMin.split(":", 2);
-
-                String prefixJ = partsJ[0].trim();
-                String suffixJ = partsJ.length > 1 ? partsJ[1].trim() : "";
-
-                String prefixMin = partsMin[0].trim();
-                String suffixMin = partsMin.length > 1 ? partsMin[1].trim() : "";
-
+        for (String titulo : pesquisas) {
+            boolean encontrado = false;
+            for (Show show : lista) {
                 comparacoes++;
-                int cmp = prefixJ.compareToIgnoreCase(prefixMin);
-                if (cmp == 0) {
-                    comparacoes++;
-                    cmp = suffixJ.compareToIgnoreCase(suffixMin);
-                }
-
-                if (cmp < 0) {
-                    minIndex = j;
+                if (show.getTitle().equals(titulo)) {
+                    encontrado = true;
+                    break;
                 }
             }
-
-            if (minIndex != i) {
-                Show temp = showsSelecionados.get(i);
-                showsSelecionados.set(i, showsSelecionados.get(minIndex));
-                showsSelecionados.set(minIndex, temp);
-                movimentacoes++;
-            }
+            System.out.println(encontrado ? "SIM" : "NAO");
         }
 
-        // 3. Imprime ordenado
-        for (Show s : showsSelecionados) {
-            s.imprimir();
-        }
+        long fim = System.nanoTime();
+        double tempo = (fim - inicio) / 1e6; // tempo em milissegundos
 
-        long fim = System.currentTimeMillis();
-        long tempo = fim - inicio;
-
-        try (PrintWriter logWriter = new PrintWriter("860144_selecao.txt")) {
-            logWriter.println("860144\t" + comparacoes + "\t" + movimentacoes + "\t" + tempo);
+        // Gera o Log
+        try (PrintWriter log = new PrintWriter("860144_sequencial.txt")) { // Substituir por sua matrícula
+            log.printf("123456\t%.3f\t%d\n", tempo, comparacoes);
         } catch (IOException e) {
-            System.out.println("Erro ao escrever o log: " + e.getMessage());
+            System.out.println("Erro ao escrever log: " + e.getMessage());
         }
 
         scanner.close();
     }
-
 }

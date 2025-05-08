@@ -1,4 +1,4 @@
-//Questão 05, 98,2% na publica e 85,9% na privada
+// Questâo 09
 
 import java.io.*;
 import java.util.*;
@@ -226,7 +226,13 @@ class Show {
     }
 }
 
-public class Q5 {
+public class Q9 {
+
+    static class Contadores {
+        int comparacoes = 0;
+        int movimentacoes = 0;
+    }
+
     // NA HORA DE ENVIAR, TALVEZ PRECISE COLOCAR PUBLIC CLASS MAIN
     // Metodo pra ajudar a cortar a string da forma correta
     public static String[] parseCSVLine(String line) {
@@ -249,7 +255,7 @@ public class Q5 {
     }
 
     public static void main(String[] args) {
-        String csvFilePath = "/tmp/disneyplus.csv"; // COLOCAR "/" ANTES DE TMP NA HORA DE ENVIAR
+        String csvFilePath = "/tmp/disneyplus.csv";
         Scanner scanner = new Scanner(System.in);
 
         // Carrega todos os dados em memória
@@ -267,7 +273,7 @@ public class Q5 {
             return;
         }
 
-        // 1. Le IDs
+        // Lê os IDs
         List<Show> showsSelecionados = new ArrayList<>();
         while (true) {
             String id = scanner.nextLine();
@@ -296,61 +302,84 @@ public class Q5 {
             }
         }
 
-        int comparacoes = 0;
-        int movimentacoes = 0;
+        // Heapsort com log
+
         long inicio = System.currentTimeMillis();
 
-        // 2. Ordenar por título (Seleção)
-        for (int i = 0; i < showsSelecionados.size() - 1; i++) {
-            int minIndex = i;
-            for (int j = i + 1; j < showsSelecionados.size(); j++) {
-                String titleJ = showsSelecionados.get(j).getTitle();
-                String titleMin = showsSelecionados.get(minIndex).getTitle();
+        Contadores cont = new Contadores(); // Aqui tava dando problema de nao estar achando a variavel, a forma como
+                                            // achei melhor era criar uma static class e chamar seu construtor na main
+                                            // para poder usar no heapsort
 
-                String[] partsJ = titleJ.split(":", 2);
-                String[] partsMin = titleMin.split(":", 2);
+        // O comparador agora trata os diretores vazios como NAAAAAAAAA assim garante
+        // que eles apareçam na ordem, além claro de sua sub ordenação pelo titulo
+        Comparator<Show> comp = new Comparator<Show>() {
+            public int compare(Show a, Show b) {
+                cont.comparacoes++;
 
-                String prefixJ = partsJ[0].trim();
-                String suffixJ = partsJ.length > 1 ? partsJ[1].trim() : "";
+                // Substitui diretor vazio ou NaN por "NAAAAA"
+                String dirA = (a.getDirector() == null || a.getDirector().isEmpty()) ? "NAAAAA" : a.getDirector();
+                String dirB = (b.getDirector() == null || b.getDirector().isEmpty()) ? "NAAAAA" : b.getDirector();
 
-                String prefixMin = partsMin[0].trim();
-                String suffixMin = partsMin.length > 1 ? partsMin[1].trim() : "";
-
-                comparacoes++;
-                int cmp = prefixJ.compareToIgnoreCase(prefixMin);
-                if (cmp == 0) {
-                    comparacoes++;
-                    cmp = suffixJ.compareToIgnoreCase(suffixMin);
+                int res = dirA.compareToIgnoreCase(dirB);
+                if (res == 0) {
+                    cont.comparacoes++;
+                    res = a.getTitle().compareToIgnoreCase(b.getTitle());
                 }
-
-                if (cmp < 0) {
-                    minIndex = j;
-                }
+                return res;
             }
+        };
 
-            if (minIndex != i) {
-                Show temp = showsSelecionados.get(i);
-                showsSelecionados.set(i, showsSelecionados.get(minIndex));
-                showsSelecionados.set(minIndex, temp);
-                movimentacoes++;
+        int n = showsSelecionados.size();
+
+        // Função heapify como lambda local
+        class HeapHelper {
+            void heapify(List<Show> arr, int n, int i) {
+                int largest = i;
+                int left = 2 * i + 1;
+                int right = 2 * i + 2;
+
+                if (left < n && comp.compare(arr.get(left), arr.get(largest)) > 0)
+                    largest = left;
+
+                if (right < n && comp.compare(arr.get(right), arr.get(largest)) > 0)
+                    largest = right;
+
+                if (largest != i) {
+                    Collections.swap(arr, i, largest);
+                    cont.movimentacoes += 3;
+                    heapify(arr, n, largest);
+                }
             }
         }
 
-        // 3. Imprime ordenado
-        for (Show s : showsSelecionados) {
-            s.imprimir();
+        HeapHelper helper = new HeapHelper();
+
+        // Build max heap
+        for (int i = n / 2 - 1; i >= 0; i--)
+            helper.heapify(showsSelecionados, n, i);
+
+        // Heap sort
+        for (int i = n - 1; i > 0; i--) {
+            Collections.swap(showsSelecionados, 0, i);
+            cont.movimentacoes += 3;
+            helper.heapify(showsSelecionados, i, 0);
         }
 
         long fim = System.currentTimeMillis();
         long tempo = fim - inicio;
 
-        try (PrintWriter logWriter = new PrintWriter("860144_selecao.txt")) {
-            logWriter.println("860144\t" + comparacoes + "\t" + movimentacoes + "\t" + tempo);
+        // Imprime os shows ordenados
+        for (Show s : showsSelecionados) {
+            s.imprimir();
+        }
+
+        // Gera o log
+        try (PrintWriter logWriter = new PrintWriter("860144_heapsort.txt")) {
+            logWriter.println("860144\t" + cont.comparacoes + "\t" + cont.movimentacoes + "\t" + tempo);
         } catch (IOException e) {
             System.out.println("Erro ao escrever o log: " + e.getMessage());
         }
 
         scanner.close();
     }
-
 }

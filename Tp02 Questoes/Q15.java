@@ -226,7 +226,7 @@ class Show {
     }
 }
 
-public class Q5 {
+public class Q15 {
     // NA HORA DE ENVIAR, TALVEZ PRECISE COLOCAR PUBLIC CLASS MAIN
     // Metodo pra ajudar a cortar a string da forma correta
     public static String[] parseCSVLine(String line) {
@@ -247,6 +247,7 @@ public class Q5 {
         tokens.add(sb.toString().trim()); // Adiciona o último token
         return tokens.toArray(new String[0]);
     }
+    
 
     public static void main(String[] args) {
         String csvFilePath = "/tmp/disneyplus.csv"; // COLOCAR "/" ANTES DE TMP NA HORA DE ENVIAR
@@ -296,12 +297,9 @@ public class Q5 {
             }
         }
 
-        int comparacoes = 0;
-        int movimentacoes = 0;
-        long inicio = System.currentTimeMillis();
-
-        // 2. Ordenar por título (Seleção)
-        for (int i = 0; i < showsSelecionados.size() - 1; i++) {
+        // 2. Ordenar por título (Seleção) - SÓ OS PRIMEIROS 10
+        int limite = Math.min(10, showsSelecionados.size());
+        for (int i = 0; i < limite; i++) {
             int minIndex = i;
             for (int j = i + 1; j < showsSelecionados.size(); j++) {
                 String titleJ = showsSelecionados.get(j).getTitle();
@@ -316,10 +314,8 @@ public class Q5 {
                 String prefixMin = partsMin[0].trim();
                 String suffixMin = partsMin.length > 1 ? partsMin[1].trim() : "";
 
-                comparacoes++;
                 int cmp = prefixJ.compareToIgnoreCase(prefixMin);
                 if (cmp == 0) {
-                    comparacoes++;
                     cmp = suffixJ.compareToIgnoreCase(suffixMin);
                 }
 
@@ -332,22 +328,12 @@ public class Q5 {
                 Show temp = showsSelecionados.get(i);
                 showsSelecionados.set(i, showsSelecionados.get(minIndex));
                 showsSelecionados.set(minIndex, temp);
-                movimentacoes++;
             }
         }
 
-        // 3. Imprime ordenado
-        for (Show s : showsSelecionados) {
-            s.imprimir();
-        }
-
-        long fim = System.currentTimeMillis();
-        long tempo = fim - inicio;
-
-        try (PrintWriter logWriter = new PrintWriter("860144_selecao.txt")) {
-            logWriter.println("860144\t" + comparacoes + "\t" + movimentacoes + "\t" + tempo);
-        } catch (IOException e) {
-            System.out.println("Erro ao escrever o log: " + e.getMessage());
+        // 3. Achei fácil 
+        for (int i = 0; i < limite; i++) {
+            showsSelecionados.get(i).imprimir();
         }
 
         scanner.close();

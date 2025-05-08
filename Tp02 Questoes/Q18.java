@@ -1,7 +1,9 @@
-//Questão 05, 98,2% na publica e 85,9% na privada
 
-import java.io.*;
+// Questão 18
 import java.util.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.text.*;
 
 class Show {
@@ -226,9 +228,8 @@ class Show {
     }
 }
 
-public class Q5 {
-    // NA HORA DE ENVIAR, TALVEZ PRECISE COLOCAR PUBLIC CLASS MAIN
-    // Metodo pra ajudar a cortar a string da forma correta
+public class Q18 {
+
     public static String[] parseCSVLine(String line) {
         List<String> tokens = new ArrayList<>();
         boolean inQuotes = false;
@@ -246,6 +247,49 @@ public class Q5 {
         }
         tokens.add(sb.toString().trim()); // Adiciona o último token
         return tokens.toArray(new String[0]);
+    }
+
+    // Metodo auxiliar
+    public static int comparar(Show a, Show b) {
+        Date dataA = a.getDateAdded();
+        Date dataB = b.getDateAdded();
+
+        if (dataA == null && dataB == null)
+            return a.getTitle().compareToIgnoreCase(b.getTitle());
+        if (dataA == null)
+            return 1;
+        if (dataB == null)
+            return -1;
+
+        int cmp = dataA.compareTo(dataB);
+        if (cmp != 0)
+            return cmp;
+
+        return a.getTitle().compareToIgnoreCase(b.getTitle());
+    }
+
+    // Implementação do QuickSort
+    public static void quicksort(List<Show> lista, int esq, int dir) {
+        int i = esq, j = dir;
+        Show pivo = lista.get((esq + dir) / 2);
+
+        while (i <= j) {
+            while (comparar(lista.get(i), pivo) < 0)
+                i++;
+            while (comparar(lista.get(j), pivo) > 0)
+                j--;
+
+            if (i <= j) {
+                Collections.swap(lista, i, j);
+                i++;
+                j--;
+            }
+        }
+
+        if (esq < j)
+            quicksort(lista, esq, j);
+        if (i < dir)
+            quicksort(lista, i, dir);
     }
 
     public static void main(String[] args) {
@@ -296,58 +340,14 @@ public class Q5 {
             }
         }
 
-        int comparacoes = 0;
-        int movimentacoes = 0;
-        long inicio = System.currentTimeMillis();
+        // Chama o QuickSort:
 
-        // 2. Ordenar por título (Seleção)
-        for (int i = 0; i < showsSelecionados.size() - 1; i++) {
-            int minIndex = i;
-            for (int j = i + 1; j < showsSelecionados.size(); j++) {
-                String titleJ = showsSelecionados.get(j).getTitle();
-                String titleMin = showsSelecionados.get(minIndex).getTitle();
+        quicksort(showsSelecionados, 0, showsSelecionados.size() - 1);
 
-                String[] partsJ = titleJ.split(":", 2);
-                String[] partsMin = titleMin.split(":", 2);
-
-                String prefixJ = partsJ[0].trim();
-                String suffixJ = partsJ.length > 1 ? partsJ[1].trim() : "";
-
-                String prefixMin = partsMin[0].trim();
-                String suffixMin = partsMin.length > 1 ? partsMin[1].trim() : "";
-
-                comparacoes++;
-                int cmp = prefixJ.compareToIgnoreCase(prefixMin);
-                if (cmp == 0) {
-                    comparacoes++;
-                    cmp = suffixJ.compareToIgnoreCase(suffixMin);
-                }
-
-                if (cmp < 0) {
-                    minIndex = j;
-                }
-            }
-
-            if (minIndex != i) {
-                Show temp = showsSelecionados.get(i);
-                showsSelecionados.set(i, showsSelecionados.get(minIndex));
-                showsSelecionados.set(minIndex, temp);
-                movimentacoes++;
-            }
-        }
-
-        // 3. Imprime ordenado
-        for (Show s : showsSelecionados) {
-            s.imprimir();
-        }
-
-        long fim = System.currentTimeMillis();
-        long tempo = fim - inicio;
-
-        try (PrintWriter logWriter = new PrintWriter("860144_selecao.txt")) {
-            logWriter.println("860144\t" + comparacoes + "\t" + movimentacoes + "\t" + tempo);
-        } catch (IOException e) {
-            System.out.println("Erro ao escrever o log: " + e.getMessage());
+        // Imprime:
+        int limite = Math.min(10, showsSelecionados.size());
+        for (int i = 0; i < limite; i++) {
+            showsSelecionados.get(i).imprimir();
         }
 
         scanner.close();

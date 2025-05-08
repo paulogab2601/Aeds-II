@@ -1,4 +1,4 @@
-//Questão 05, 98,2% na publica e 85,9% na privada
+// Questâo 13
 
 import java.io.*;
 import java.util.*;
@@ -226,9 +226,24 @@ class Show {
     }
 }
 
-public class Q5 {
-    // NA HORA DE ENVIAR, TALVEZ PRECISE COLOCAR PUBLIC CLASS MAIN
-    // Metodo pra ajudar a cortar a string da forma correta
+public class Q13 {
+
+    static class Contadores {
+        int comparacoes = 0;
+        int movimentacoes = 0;
+    }
+
+    // Função auxiliar para extrair o valor numérico da duração
+    public static int getDurationValue(String duration) {
+        try {
+            String[] parts = duration.split(" ");
+            return Integer.parseInt(parts[0]);
+        } catch (Exception e) {
+            return 0; // Caso de valor inválido
+        }
+    }
+
+    // Função para parse de CSV com vírgulas entre aspas
     public static String[] parseCSVLine(String line) {
         List<String> tokens = new ArrayList<>();
         boolean inQuotes = false;
@@ -244,19 +259,74 @@ public class Q5 {
                 sb.append(c);
             }
         }
-        tokens.add(sb.toString().trim()); // Adiciona o último token
+        tokens.add(sb.toString().trim());
         return tokens.toArray(new String[0]);
     }
 
+    // Merge Sort
+    public static List<Show> mergeSort(List<Show> lista, Comparator<Show> comp, Contadores cont) {
+        if (lista.size() <= 1)
+            return lista;
+
+        int meio = lista.size() / 2;
+        List<Show> esquerda = mergeSort(new ArrayList<>(lista.subList(0, meio)), comp, cont);
+        List<Show> direita = mergeSort(new ArrayList<>(lista.subList(meio, lista.size())), comp, cont);
+
+        return merge(esquerda, direita, comp, cont);
+    }
+
+    // Merge
+    public static List<Show> merge(List<Show> esq, List<Show> dir, Comparator<Show> comp, Contadores cont) {
+        List<Show> result = new ArrayList<>();
+        int i = 0, j = 0;
+
+        while (i < esq.size() && j < dir.size()) {
+            cont.comparacoes++;
+            if (comp.compare(esq.get(i), dir.get(j)) <= 0) {
+                result.add(esq.get(i++));
+            } else {
+                result.add(dir.get(j++));
+            }
+            cont.movimentacoes++;
+        }
+
+        while (i < esq.size()) {
+            result.add(esq.get(i++));
+            cont.movimentacoes++;
+        }
+
+        while (j < dir.size()) {
+            result.add(dir.get(j++));
+            cont.movimentacoes++;
+        }
+
+        return result;
+    }
+
     public static void main(String[] args) {
-        String csvFilePath = "/tmp/disneyplus.csv"; // COLOCAR "/" ANTES DE TMP NA HORA DE ENVIAR
+        String csvFilePath = "/tmp/disneyplus.csv"; //VOLTAR A "\" QUANDO ENVIAR NO VERDE
         Scanner scanner = new Scanner(System.in);
 
-        // Carrega todos os dados em memória
-        List<String[]> allRows = new ArrayList<>();
+        Contadores cont = new Contadores();
 
+        Comparator<Show> comp = new Comparator<Show>() {
+            public int compare(Show a, Show b) {
+                int da = getDurationValue(a.getDuration());
+                int db = getDurationValue(b.getDuration());
+                int res = Integer.compare(da, db);
+                cont.comparacoes++;
+                if (res == 0) {
+                    res = a.getTitle().compareToIgnoreCase(b.getTitle());
+                    cont.comparacoes++;
+                }
+                return res;
+            }
+        };
+
+        // Carrega os dados do CSV
+        List<String[]> allRows = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(csvFilePath))) {
-            br.readLine(); // pular cabeçalho
+            br.readLine(); // pula cabeçalho
             String line;
             while ((line = br.readLine()) != null) {
                 allRows.add(parseCSVLine(line));
@@ -267,7 +337,7 @@ public class Q5 {
             return;
         }
 
-        // 1. Le IDs
+        // Pega os IDs
         List<Show> showsSelecionados = new ArrayList<>();
         while (true) {
             String id = scanner.nextLine();
@@ -296,61 +366,23 @@ public class Q5 {
             }
         }
 
-        int comparacoes = 0;
-        int movimentacoes = 0;
         long inicio = System.currentTimeMillis();
+        showsSelecionados = mergeSort(showsSelecionados, comp, cont);
+        long fim = System.currentTimeMillis();
+        long tempo = fim - inicio;
 
-        // 2. Ordenar por título (Seleção)
-        for (int i = 0; i < showsSelecionados.size() - 1; i++) {
-            int minIndex = i;
-            for (int j = i + 1; j < showsSelecionados.size(); j++) {
-                String titleJ = showsSelecionados.get(j).getTitle();
-                String titleMin = showsSelecionados.get(minIndex).getTitle();
-
-                String[] partsJ = titleJ.split(":", 2);
-                String[] partsMin = titleMin.split(":", 2);
-
-                String prefixJ = partsJ[0].trim();
-                String suffixJ = partsJ.length > 1 ? partsJ[1].trim() : "";
-
-                String prefixMin = partsMin[0].trim();
-                String suffixMin = partsMin.length > 1 ? partsMin[1].trim() : "";
-
-                comparacoes++;
-                int cmp = prefixJ.compareToIgnoreCase(prefixMin);
-                if (cmp == 0) {
-                    comparacoes++;
-                    cmp = suffixJ.compareToIgnoreCase(suffixMin);
-                }
-
-                if (cmp < 0) {
-                    minIndex = j;
-                }
-            }
-
-            if (minIndex != i) {
-                Show temp = showsSelecionados.get(i);
-                showsSelecionados.set(i, showsSelecionados.get(minIndex));
-                showsSelecionados.set(minIndex, temp);
-                movimentacoes++;
-            }
-        }
-
-        // 3. Imprime ordenado
+        // Imprime ordenados
         for (Show s : showsSelecionados) {
             s.imprimir();
         }
 
-        long fim = System.currentTimeMillis();
-        long tempo = fim - inicio;
-
-        try (PrintWriter logWriter = new PrintWriter("860144_selecao.txt")) {
-            logWriter.println("860144\t" + comparacoes + "\t" + movimentacoes + "\t" + tempo);
+        // Gera log
+        try (PrintWriter logWriter = new PrintWriter("860144_mergesort.txt")) {
+            logWriter.println("860144\t" + cont.comparacoes + "\t" + cont.movimentacoes + "\t" + tempo);
         } catch (IOException e) {
             System.out.println("Erro ao escrever o log: " + e.getMessage());
         }
 
         scanner.close();
     }
-
 }

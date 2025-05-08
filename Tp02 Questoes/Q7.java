@@ -1,4 +1,4 @@
-//Questão 05, 98,2% na publica e 85,9% na privada
+// Questão 07
 
 import java.io.*;
 import java.util.*;
@@ -226,7 +226,8 @@ class Show {
     }
 }
 
-public class Q5 {
+public class Q7 {
+
     // NA HORA DE ENVIAR, TALVEZ PRECISE COLOCAR PUBLIC CLASS MAIN
     // Metodo pra ajudar a cortar a string da forma correta
     public static String[] parseCSVLine(String line) {
@@ -300,55 +301,47 @@ public class Q5 {
         int movimentacoes = 0;
         long inicio = System.currentTimeMillis();
 
-        // 2. Ordenar por título (Seleção)
-        for (int i = 0; i < showsSelecionados.size() - 1; i++) {
-            int minIndex = i;
-            for (int j = i + 1; j < showsSelecionados.size(); j++) {
-                String titleJ = showsSelecionados.get(j).getTitle();
-                String titleMin = showsSelecionados.get(minIndex).getTitle();
+        // 2. Ordenar por tipo (inserção)
+        for (int i = 1; i < showsSelecionados.size(); i++) {
+            Show chave = showsSelecionados.get(i);
+            int j = i - 1;
 
-                String[] partsJ = titleJ.split(":", 2);
-                String[] partsMin = titleMin.split(":", 2);
-
-                String prefixJ = partsJ[0].trim();
-                String suffixJ = partsJ.length > 1 ? partsJ[1].trim() : "";
-
-                String prefixMin = partsMin[0].trim();
-                String suffixMin = partsMin.length > 1 ? partsMin[1].trim() : "";
-
+            while (j >= 0) {
                 comparacoes++;
-                int cmp = prefixJ.compareToIgnoreCase(prefixMin);
+                int cmp = showsSelecionados.get(j).getType().compareToIgnoreCase(chave.getType());
+
                 if (cmp == 0) {
                     comparacoes++;
-                    cmp = suffixJ.compareToIgnoreCase(suffixMin);
+                    cmp = showsSelecionados.get(j).getTitle().compareToIgnoreCase(chave.getTitle());
                 }
 
-                if (cmp < 0) {
-                    minIndex = j;
+                if (cmp > 0) {
+                    showsSelecionados.set(j + 1, showsSelecionados.get(j));
+                    movimentacoes++;
+                    j--;
+                } else {
+                    break;
                 }
             }
 
-            if (minIndex != i) {
-                Show temp = showsSelecionados.get(i);
-                showsSelecionados.set(i, showsSelecionados.get(minIndex));
-                showsSelecionados.set(minIndex, temp);
-                movimentacoes++;
-            }
+            showsSelecionados.set(j + 1, chave);
+            movimentacoes++;
         }
+
+        long fim = System.currentTimeMillis();
+        long tempo = fim - inicio;
 
         // 3. Imprime ordenado
         for (Show s : showsSelecionados) {
             s.imprimir();
         }
 
-        long fim = System.currentTimeMillis();
-        long tempo = fim - inicio;
-
-        try (PrintWriter logWriter = new PrintWriter("860144_selecao.txt")) {
+        try (PrintWriter logWriter = new PrintWriter("860144_insercao.txt")) {
             logWriter.println("860144\t" + comparacoes + "\t" + movimentacoes + "\t" + tempo);
         } catch (IOException e) {
             System.out.println("Erro ao escrever o log: " + e.getMessage());
         }
+        
 
         scanner.close();
     }

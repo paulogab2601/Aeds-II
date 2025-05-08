@@ -1,4 +1,4 @@
-//Questão 05, 98,2% na publica e 85,9% na privada
+// Questâo 11
 
 import java.io.*;
 import java.util.*;
@@ -226,7 +226,13 @@ class Show {
     }
 }
 
-public class Q5 {
+public class Q11 {
+
+    static class Contadores {
+        int comparacoes = 0;
+        int movimentacoes = 0;
+    }
+
     // NA HORA DE ENVIAR, TALVEZ PRECISE COLOCAR PUBLIC CLASS MAIN
     // Metodo pra ajudar a cortar a string da forma correta
     public static String[] parseCSVLine(String line) {
@@ -249,7 +255,7 @@ public class Q5 {
     }
 
     public static void main(String[] args) {
-        String csvFilePath = "/tmp/disneyplus.csv"; // COLOCAR "/" ANTES DE TMP NA HORA DE ENVIAR
+        String csvFilePath = "tmp/disneyplus.csv";
         Scanner scanner = new Scanner(System.in);
 
         // Carrega todos os dados em memória
@@ -267,7 +273,7 @@ public class Q5 {
             return;
         }
 
-        // 1. Le IDs
+        // Lê os IDs
         List<Show> showsSelecionados = new ArrayList<>();
         while (true) {
             String id = scanner.nextLine();
@@ -296,56 +302,63 @@ public class Q5 {
             }
         }
 
-        int comparacoes = 0;
-        int movimentacoes = 0;
+        // Counting sort 
         long inicio = System.currentTimeMillis();
 
-        // 2. Ordenar por título (Seleção)
-        for (int i = 0; i < showsSelecionados.size() - 1; i++) {
-            int minIndex = i;
-            for (int j = i + 1; j < showsSelecionados.size(); j++) {
-                String titleJ = showsSelecionados.get(j).getTitle();
-                String titleMin = showsSelecionados.get(minIndex).getTitle();
+        // Maior, menor
+        int minAno = Integer.MAX_VALUE;
+        int maxAno = Integer.MIN_VALUE;
 
-                String[] partsJ = titleJ.split(":", 2);
-                String[] partsMin = titleMin.split(":", 2);
+        Contadores cont = new Contadores();
 
-                String prefixJ = partsJ[0].trim();
-                String suffixJ = partsJ.length > 1 ? partsJ[1].trim() : "";
-
-                String prefixMin = partsMin[0].trim();
-                String suffixMin = partsMin.length > 1 ? partsMin[1].trim() : "";
-
-                comparacoes++;
-                int cmp = prefixJ.compareToIgnoreCase(prefixMin);
-                if (cmp == 0) {
-                    comparacoes++;
-                    cmp = suffixJ.compareToIgnoreCase(suffixMin);
-                }
-
-                if (cmp < 0) {
-                    minIndex = j;
-                }
-            }
-
-            if (minIndex != i) {
-                Show temp = showsSelecionados.get(i);
-                showsSelecionados.set(i, showsSelecionados.get(minIndex));
-                showsSelecionados.set(minIndex, temp);
-                movimentacoes++;
-            }
+        for (Show s : showsSelecionados) {
+            if (s.getReleaseYear() < minAno)
+                minAno = s.getReleaseYear();
+            if (s.getReleaseYear() > maxAno)
+                maxAno = s.getReleaseYear();
         }
 
-        // 3. Imprime ordenado
+        // Cria as listas cm os anos
+        int range = maxAno - minAno + 1;
+        List<List<Show>> buckets = new ArrayList<>(range);
+        for (int i = 0; i < range; i++)
+            buckets.add(new ArrayList<>());
+
+        // Passa os elementos pras listas
         for (Show s : showsSelecionados) {
-            s.imprimir();
+            int idx = s.getReleaseYear() - minAno;
+            buckets.get(idx).add(s);
+            cont.movimentacoes++;
+        }
+
+        // Ordena a lista pelo titulo (desempate)
+        for (List<Show> bucket : buckets) {
+            bucket.sort((a, b) -> {
+                cont.comparacoes++;
+                return a.getTitle().compareToIgnoreCase(b.getTitle());
+            });
+        }
+
+        // Junta as lista
+        List<Show> ordenado = new ArrayList<>();
+        for (List<Show> bucket : buckets) {
+            for (Show s : bucket) {
+                ordenado.add(s);
+                cont.movimentacoes++;
+            }
         }
 
         long fim = System.currentTimeMillis();
         long tempo = fim - inicio;
 
-        try (PrintWriter logWriter = new PrintWriter("860144_selecao.txt")) {
-            logWriter.println("860144\t" + comparacoes + "\t" + movimentacoes + "\t" + tempo);
+        // Imprime os shows ordenados
+        for (Show s : ordenado) {
+            s.imprimir();
+        }
+
+        // Gera o log
+        try (PrintWriter logWriter = new PrintWriter("860144_countingsort.txt")) {
+            logWriter.println("860144\t" + cont.comparacoes + "\t" + cont.movimentacoes + "\t" + tempo);
         } catch (IOException e) {
             System.out.println("Erro ao escrever o log: " + e.getMessage());
         }
