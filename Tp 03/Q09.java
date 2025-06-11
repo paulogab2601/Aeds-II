@@ -49,7 +49,7 @@ class Show {
     }
 }
 
-public class PilhaDinamica {
+public class Q09 {
     static final int MAX_SHOWS = 1500;
     static List<Show> todosShows = new ArrayList<>();
     static List<Show> pilha = new ArrayList<>();
