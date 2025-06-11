@@ -293,7 +293,7 @@ public class Q18 {
     }
 
     public static void main(String[] args) {
-        String csvFilePath = "/tmp/disneyplus.csv"; // COLOCAR "/" ANTES DE TMP NA HORA DE ENVIAR
+        String csvFilePath = "tmp/disneyplus.csv"; // COLOCAR "/" ANTES DE TMP NA HORA DE ENVIAR
         Scanner scanner = new Scanner(System.in);
 
         // Carrega todos os dados em memória
