@@ -62,7 +62,7 @@ public class Q10 {
         long fimT = System.currentTimeMillis();
         for (Conteudo c : arr) c.exibir();
         double tempo = fimT - iniT;
-        salvar("846431_quicksort3.txt", compGlobal, movGlobal, tempo);
+        salvar("860144_quicksort3.txt", compGlobal, movGlobal, tempo);
         if (in.hasNextLine()) {
             String busca = in.nextLine().trim();
             int[] compBin = {0};
@@ -154,7 +154,7 @@ public class Q10 {
     }
     static void salvar(String nome, int comp, int mov, double tempo) {
         try (PrintWriter pw = new PrintWriter(new FileWriter(nome))) {
-            pw.printf("846431\t%d\t%d\t%.2f\n", comp, mov, tempo);
+            pw.printf("860144\t%d\t%d\t%.2f\n", comp, mov, tempo);
         } catch (IOException e) { e.printStackTrace(); }
     }
 }

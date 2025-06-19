@@ -3,25 +3,22 @@
 #include <string.h>
 #include <ctype.h>
 
-#define MAX_SHOWS 1500
-#define MAX_STR 256
-
 typedef struct {
-    char show_id[MAX_STR];
-    char type[MAX_STR];
-    char title[MAX_STR];
-    char director[MAX_STR];
-    char cast[MAX_STR];
-    char country[MAX_STR];
-    char date_added[MAX_STR];
+    char show_id[256];
+    char type[256];
+    char title[256];
+    char director[256];
+    char cast[256];
+    char country[256];
+    char date_added[256];
     int release_year;
-    char rating[MAX_STR];
-    char duration[MAX_STR];
-    char listed_in[MAX_STR];
+    char rating[256];
+    char duration[256];
+    char listed_in[256];
 } Show;
 
 
-Show* lista[MAX_SHOWS];
+Show* lista[1500];
 int n = 0;
 
 void substituirPorNaN(char *str) {
@@ -134,7 +131,7 @@ void lerShow(Show *s, char *linha) {
     char *campos[11];
     int campoIndex = 0;
     int entreAspas = 0;
-    char buffer[MAX_STR];
+    char buffer[256];
     int bufIndex = 0;
     char *ptr = linha;
 
@@ -208,13 +205,13 @@ int main() {
         return 1;
     }
 
-    Show shows[MAX_SHOWS];
+    Show shows[1500];
     int totalShows = 0;
     char linha[1024];
 
     fgets(linha, sizeof(linha), arquivo); 
 
-    while (fgets(linha, sizeof(linha), arquivo) && totalShows < MAX_SHOWS) {
+    while (fgets(linha, sizeof(linha), arquivo) && totalShows < 1500) {
         linha[strcspn(linha, "\n")] = 0;
         lerShow(&shows[totalShows], linha);
         if (shows[totalShows].show_id[0] != '\0') {
@@ -224,7 +221,7 @@ int main() {
 
     fclose(arquivo);
 
-    char entrada[MAX_STR];
+    char entrada[256];
     while (1) {
         fgets(entrada, sizeof(entrada), stdin);
         entrada[strcspn(entrada, "\n")] = 0;
@@ -248,7 +245,7 @@ int main() {
         comando[strcspn(comando, "\n")] = 0;
 
         if (strncmp(comando, "II ", 3) == 0) {
-            char id[MAX_STR];
+            char id[256];
             sscanf(comando + 3, "%s", id);
             for (int j = 0; j < totalShows; j++) {
                 if (strcmp(shows[j].show_id, id) == 0) {
@@ -257,7 +254,7 @@ int main() {
                 }
             }
         } else if (strncmp(comando, "IF ", 3) == 0) {
-            char id[MAX_STR];
+            char id[256];
             sscanf(comando + 3, "%s", id);
             for (int j = 0; j < totalShows; j++) {
                 if (strcmp(shows[j].show_id, id) == 0) {
@@ -267,7 +264,7 @@ int main() {
             }
         } else if (strncmp(comando, "I*", 2) == 0) {
             int pos;
-            char id[MAX_STR];
+            char id[256];
             sscanf(comando + 2, "%d %s", &pos, id);
             for (int j = 0; j < totalShows; j++) {
                 if (strcmp(shows[j].show_id, id) == 0) {

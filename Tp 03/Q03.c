@@ -3,28 +3,25 @@
 #include <string.h>
 #include <ctype.h>
 
-#define MAX_STACK 1500
-#define STR_SIZE 256
-
 typedef struct {
-    char codigo[STR_SIZE];
-    char formato[STR_SIZE];
-    char titulo[STR_SIZE];
-    char autor[STR_SIZE];
-    char atores[STR_SIZE];
-    char origem[STR_SIZE];
-    char lancamento[STR_SIZE];
+    char codigo[256];
+    char formato[256];
+    char titulo[256];
+    char autor[256];
+    char atores[256];
+    char origem[256];
+    char lancamento[256];
     int anoProducao;
-    char faixaEtaria[STR_SIZE];
-    char tempo[STR_SIZE];
-    char generos[STR_SIZE];
+    char faixaEtaria[256];
+    char tempo[256];
+    char generos[256];
 } Titulo;
 
-Titulo* pilha[MAX_STACK];
+Titulo* pilha[1500];
 int topo = 0;
 
 void empilhar(Titulo* t) {
-    if (topo < MAX_STACK) {
+    if (topo < 1500) {
         pilha[topo++] = t;
     }
 }
@@ -91,7 +88,7 @@ void ordenarGeneros(char *campo) {
 void lerTitulo(Titulo *t, char *linha) {
     char *campos[11];
     int idx = 0, entreAspas = 0, bidx = 0;
-    char buffer[STR_SIZE];
+    char buffer[256];
     char *p = linha;
     while (*p != '\0' && idx < 11) {
         if (*p == '"') entreAspas = !entreAspas;
@@ -135,17 +132,17 @@ int main() {
     char arquivoCSV[] = "/tmp/disneyplus.csv";
     FILE *fp = fopen(arquivoCSV, "r");
     if (!fp) { perror("Erro ao abrir arquivo"); return 1; }
-    Titulo titulos[MAX_STACK];
+    Titulo titulos[1500];
     int qtdTitulos = 0;
     char linha[1024];
     fgets(linha, sizeof(linha), fp);
-    while (fgets(linha, sizeof(linha), fp) && qtdTitulos < MAX_STACK) {
+    while (fgets(linha, sizeof(linha), fp) && qtdTitulos < 1500) {
         linha[strcspn(linha, "\n")] = 0;
         lerTitulo(&titulos[qtdTitulos], linha);
         if (titulos[qtdTitulos].codigo[0] != '\0') qtdTitulos++;
     }
     fclose(fp);
-    char entrada[STR_SIZE];
+    char entrada[256];
     while (1) {
         fgets(entrada, sizeof(entrada), stdin);
         entrada[strcspn(entrada, "\n")] = 0;
@@ -164,7 +161,7 @@ int main() {
         fgets(comando, sizeof(comando), stdin);
         comando[strcspn(comando, "\n")] = 0;
         if (!strncmp(comando, "I ", 2)) {
-            char codigo[STR_SIZE];
+            char codigo[256];
             sscanf(comando + 2, "%s", codigo);
             for (int j = 0; j < qtdTitulos; j++) {
                 if (!strcmp(titulos[j].codigo, codigo)) {

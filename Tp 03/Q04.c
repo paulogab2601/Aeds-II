@@ -3,28 +3,25 @@
 #include <string.h>
 #include <math.h>
 
-#define MAX_STR 256
-#define TAM_FILA 5
-
 typedef struct {
-    char show_id[MAX_STR];
-    char type[MAX_STR];
-    char title[MAX_STR];
-    char director[MAX_STR];
-    char cast[MAX_STR];
-    char country[MAX_STR];
-    char date_added[MAX_STR];
+    char show_id[256];
+    char type[256];
+    char title[256];
+    char director[256];
+    char cast[256];
+    char country[256];
+    char date_added[256];
     int release_year;
-    char rating[MAX_STR];
-    char duration[MAX_STR];
-    char listed_in[MAX_STR];
+    char rating[256];
+    char duration[256];
+    char listed_in[256];
 } Show;
 
 Show base[1500];
 int qtdBase = 0;
 
 typedef struct {
-    Show array[TAM_FILA];
+    Show array[5];
     int primeiro, ultimo, tamanho;
 } FilaCircular;
 
@@ -35,7 +32,7 @@ void iniciarFila(FilaCircular *f) {
 }
 
 int estaCheia(FilaCircular *f) {
-    return f->tamanho == TAM_FILA;
+    return f->tamanho == 5;
 }
 
 int estaVazia(FilaCircular *f) {
@@ -46,7 +43,7 @@ Show removerFila(FilaCircular *f, int imprimir) {
     Show removido;
     if (!estaVazia(f)) {
         removido = f->array[f->primeiro];
-        f->primeiro = (f->primeiro + 1) % TAM_FILA;
+        f->primeiro = (f->primeiro + 1) % 5;
         f->tamanho--;
         if (imprimir) {
             printf("(R) %s\n", removido.title);
@@ -59,7 +56,7 @@ Show removerFila(FilaCircular *f, int imprimir) {
 
 void imprimirMedia(FilaCircular *f) {
     int soma = 0, count = 0;
-    for (int i = 0, idx = f->primeiro; i < f->tamanho; i++, idx = (idx + 1) % TAM_FILA) {
+    for (int i = 0, idx = f->primeiro; i < f->tamanho; i++, idx = (idx + 1) % 5) {
         int ano = f->array[idx].release_year;
         if (ano > 0) {
             soma += ano;
@@ -75,7 +72,7 @@ void inserirFila(FilaCircular *f, Show s) {
         removerFila(f, 0);
     }
     f->array[f->ultimo] = s;
-    f->ultimo = (f->ultimo + 1) % TAM_FILA;
+    f->ultimo = (f->ultimo + 1) % 5;
     f->tamanho++;
     imprimirMedia(f);
 }
@@ -89,7 +86,7 @@ int comparar(const void *a, const void *b) {
 void ordenarTokens(char *campo) {
     char *itens[50];
     int total = 0;
-    char buffer[MAX_STR];
+    char buffer[256];
     strcpy(buffer, campo);
 
     char *token = strtok(buffer, ",");
@@ -122,7 +119,7 @@ void lerShow(Show *s, char *linha) {
     char *campos[11];
     int campoIndex = 0;
     int entreAspas = 0;
-    char buffer[MAX_STR];
+    char buffer[256];
     int bufIndex = 0;
     char *ptr = linha;
 
@@ -194,7 +191,7 @@ int main() {
     FilaCircular fila;
     iniciarFila(&fila);
 
-    char entrada[MAX_STR];
+    char entrada[256];
     while (fgets(entrada, sizeof(entrada), stdin)) {
         entrada[strcspn(entrada, "\n")] = 0;
         if (strcmp(entrada, "FIM") == 0) break;
@@ -208,7 +205,7 @@ int main() {
     int qtdComandos;
     scanf("%d\n", &qtdComandos);
     for (int j = 0; j < qtdComandos; j++) {
-        char comando[MAX_STR];
+        char comando[256];
         fgets(comando, sizeof(comando), stdin);
         comando[strcspn(comando, "\n")] = 0;
 
@@ -226,7 +223,7 @@ int main() {
 
     int posicao = 0;
     int idx = fila.primeiro;
-    for (int k = 0; k < fila.tamanho; k++, idx = (idx + 1) % TAM_FILA) {
+    for (int k = 0; k < fila.tamanho; k++, idx = (idx + 1) % 5) {
         Show *s = &fila.array[idx];
         printf("[%d] => %s ## %s ## %s ## %s ## [%s] ## %s ## %s ## %d ## %s ## %s ## [%s] ##\n",
                posicao++, s->show_id, s->title, s->type, s->director, s->cast, s->country,

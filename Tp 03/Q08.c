@@ -4,21 +4,19 @@
 #include <time.h>
 #include <locale.h>
 
-#define MAX_SHOWS 1500
-#define MAX_STR 256
 
 typedef struct {
-    char show_id[MAX_STR];
-    char type[MAX_STR];
-    char title[MAX_STR];
-    char director[MAX_STR];
-    char cast[MAX_STR];
-    char country[MAX_STR];
-    char date_added[MAX_STR];
+    char show_id[256];
+    char type[256];
+    char title[256];
+    char director[256];
+    char cast[256];
+    char country[256];
+    char date_added[256];
     int release_year;
-    char rating[MAX_STR];
-    char duration[MAX_STR];
-    char listed_in[MAX_STR];
+    char rating[256];
+    char duration[256];
+    char listed_in[256];
 } Show;
 
 typedef struct Node {
@@ -45,7 +43,7 @@ void lerShow(Show *s, char *linha) {
     int campoIndex = 0;
     int entreAspas = 0;
     char *ptr = linha;
-    char buffer[MAX_STR];
+    char buffer[256];
     int bufIndex = 0;
 
     while (*ptr != '\0' && campoIndex < 12) {
@@ -82,20 +80,20 @@ void lerShow(Show *s, char *linha) {
 void ordenarCast(char *cast) {
     if (strcmp(cast, "NaN") == 0) return;
 
-    char nomes[MAX_SHOWS][MAX_STR];
+    char nomes[1500][256];
     int qtd = 0;
     char *token = strtok(cast, ",");
 
-    while (token != NULL && qtd < MAX_SHOWS) {
+    while (token != NULL && qtd < 1500) {
         while (*token == ' ') token++;
-        strncpy(nomes[qtd++], token, MAX_STR);
+        strncpy(nomes[qtd++], token, 256);
         token = strtok(NULL, ",");
     }
 
     for (int i = 0; i < qtd - 1; i++) {
         for (int j = i + 1; j < qtd; j++) {
             if (strcmp(nomes[i], nomes[j]) > 0) {
-                char temp[MAX_STR];
+                char temp[256];
                 strcpy(temp, nomes[i]);
                 strcpy(nomes[i], nomes[j]);
                 strcpy(nomes[j], temp);
@@ -111,17 +109,13 @@ void ordenarCast(char *cast) {
 }
 
 void imprimirShow(Show *s) {
-    char castOrdenado[MAX_STR];
+    char castOrdenado[256];
     strcpy(castOrdenado, s->cast);
     ordenarCast(castOrdenado);
-    char ano_str[10];
-    if (s->release_year == -1)
-        strcpy(ano_str, "NaN");
-    else
-        sprintf(ano_str, "%d", s->release_year);
-    printf("=> %s ## %s ## %s ## %s ## [%s] ## %s ## %s ## %s ## %s ## %s ## [%s] ##\n",
+
+    printf("=> %s ## %s ## %s ## %s ## [%s] ## %s ## %s ## %d ## %s ## %s ## [%s] ##\n",
            s->show_id, s->title, s->type, s->director, castOrdenado, s->country,
-           s->date_added, ano_str, s->rating, s->duration, s->listed_in);
+           s->date_added, s->release_year, s->rating, s->duration, s->listed_in);
 }
 
 time_t parseDate(const char *data) {
@@ -200,19 +194,19 @@ int main() {
         return 1;
     }
 
-    Show shows[MAX_SHOWS];
+    Show shows[256];
     int totalShows = 0;
     char linha[4096];
 
     fgets(linha, sizeof(linha), arquivo);
-    while (fgets(linha, sizeof(linha), arquivo) && totalShows < MAX_SHOWS) {
+    while (fgets(linha, sizeof(linha), arquivo) && totalShows < 256) {
         linha[strcspn(linha, "\n")] = 0;
         lerShow(&shows[totalShows], linha);
         totalShows++;
     }
     fclose(arquivo);
 
-    char entrada[MAX_STR];
+    char entrada[256];
     while (fgets(entrada, sizeof(entrada), stdin)) {
         entrada[strcspn(entrada, "\n")] = 0;
         if (strcmp(entrada, "FIM") == 0) break;
@@ -225,7 +219,7 @@ int main() {
         }
     }
 
-    Show lista[MAX_SHOWS];
+    Show lista[256];
     int tamLista = listaParaArray(lista);
 
     int comparacoes = 0, movimentacoes = 0;
@@ -240,9 +234,9 @@ int main() {
         imprimirShow(&lista[i]);
     }
 
-    FILE *log = fopen("846431_quicksort2.txt", "w");
+    FILE *log = fopen("860144_quicksort2.txt", "w");
     if (log) {
-        fprintf(log, "846431\t%d\t%d\t%.2lf\n", comparacoes, movimentacoes, tempoExecucao);
+        fprintf(log, "860144\t%d\t%d\t%.2lf\n", comparacoes, movimentacoes, tempoExecucao);
         fclose(log);
     }
 

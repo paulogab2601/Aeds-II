@@ -3,365 +3,362 @@
 #include <string.h>
 #include <ctype.h>
 
-#define MAX_ENTRIES 1500
-#define MAX_TEXT_LEN 256
-
 typedef struct {
-    char entry_id[MAX_TEXT_LEN];
-    char category[MAX_TEXT_LEN];
-    char program_title[MAX_TEXT_LEN];
-    char director_name[MAX_TEXT_LEN];
-    char principal_cast[MAX_TEXT_LEN];
-    char origin_country[MAX_TEXT_LEN];
-    char add_date[MAX_TEXT_LEN];
-    int production_year;
-    char maturity_rating[MAX_TEXT_LEN];
-    char content_duration[MAX_TEXT_LEN];
-    char genre_list[MAX_TEXT_LEN];
-} EntertainmentEntry;
+    char id_entrada[256];
+    char categoria[256];
+    char titulo_programa[256];
+    char nome_diretor[256];
+    char elenco_principal[256];
+    char pais_origem[256];
+    char data_adicao[256];
+    int ano_producao;
+    char classificacao_maturidade[256];
+    char duracao_conteudo[256];
+    char lista_generos[256];
+} EntradaEntretenimento;
 
-typedef struct Element {
-    EntertainmentEntry* entry_data;
-    struct Element* next_node;
-} Element;
+typedef struct Elemento {
+    EntradaEntretenimento* dados_entrada;
+    struct Elemento* proximo_no;
+} Elemento;
 
-Element* head_of_list = NULL;
+Elemento* cabeca_lista = NULL;
 
-void assign_na_if_empty(char *text_field) {
-    if (text_field[0] == '\0') {
-        strcpy(text_field, "NaN");
+void atribuir_na_se_vazio(char *campo_texto) {
+    if (campo_texto[0] == '\0') {
+        strcpy(campo_texto, "NaN");
     }
 }
 
-void arrange_cast_names(char *p_cast_field) {
-    char *individual_names[30];
-    int name_count = 0;
-    char *token_ptr = strtok(p_cast_field, ",");
+void organizar_nomes_elenco(char *campo_elenco) {
+    char *nomes_individuais[30];
+    int contagem_nomes = 0;
+    char *ponteiro_token = strtok(campo_elenco, ",");
 
-    while (token_ptr != NULL && name_count < 30) {
-        while (*token_ptr == ' ') token_ptr++;
-        individual_names[name_count++] = strdup(token_ptr);
-        token_ptr = strtok(NULL, ",");
+    while (ponteiro_token != NULL && contagem_nomes < 30) {
+        while (*ponteiro_token == ' ') ponteiro_token++;
+        nomes_individuais[contagem_nomes++] = strdup(ponteiro_token);
+        ponteiro_token = strtok(NULL, ",");
     }
 
-    for (int i = 0; i < name_count - 1; i++) {
-        for (int j = i + 1; j < name_count; j++) {
-            if (strcmp(individual_names[i], individual_names[j]) > 0) {
-                char *temp_name = individual_names[i];
-                individual_names[i] = individual_names[j];
-                individual_names[j] = temp_name;
+    for (int i = 0; i < contagem_nomes - 1; i++) {
+        for (int j = i + 1; j < contagem_nomes; j++) {
+            if (strcmp(nomes_individuais[i], nomes_individuais[j]) > 0) {
+                char *temp_nome = nomes_individuais[i];
+                nomes_individuais[i] = nomes_individuais[j];
+                nomes_individuais[j] = temp_nome;
             }
         }
     }
 
-    p_cast_field[0] = '\0';
-    for (int i = 0; i < name_count; i++) {
-        strcat(p_cast_field, individual_names[i]);
-        if (i < name_count - 1) strcat(p_cast_field, ", ");
-        free(individual_names[i]);
+    campo_elenco[0] = '\0';
+    for (int i = 0; i < contagem_nomes; i++) {
+        strcat(campo_elenco, nomes_individuais[i]);
+        if (i < contagem_nomes - 1) strcat(campo_elenco, ", ");
+        free(nomes_individuais[i]);
     }
 }
 
-void sort_genre_categories(char *p_genre_field) {
-    char *individual_genres[30];
-    int genre_count = 0;
-    char *token_ptr = strtok(p_genre_field, ",");
+void ordenar_categorias_genero(char *campo_genero) {
+    char *generos_individuais[30];
+    int contagem_generos = 0;
+    char *ponteiro_token = strtok(campo_genero, ",");
 
-    while (token_ptr != NULL && genre_count < 30) {
-        while (*token_ptr == ' ') token_ptr++;
-        individual_genres[genre_count++] = strdup(token_ptr);
-        token_ptr = strtok(NULL, ",");
+    while (ponteiro_token != NULL && contagem_generos < 30) {
+        while (*ponteiro_token == ' ') ponteiro_token++;
+        generos_individuais[contagem_generos++] = strdup(ponteiro_token);
+        ponteiro_token = strtok(NULL, ",");
     }
 
-    for (int i = 0; i < genre_count - 1; i++) {
-        for (int j = i + 1; j < genre_count; j++) {
-            if (strcmp(individual_genres[i], individual_genres[j]) > 0) {
-                char *temp_genre = individual_genres[i];
-                individual_genres[i] = individual_genres[j];
-                individual_genres[j] = temp_genre;
+    for (int i = 0; i < contagem_generos - 1; i++) {
+        for (int j = i + 1; j < contagem_generos; j++) {
+            if (strcmp(generos_individuais[i], generos_individuais[j]) > 0) {
+                char *temp_genero = generos_individuais[i];
+                generos_individuais[i] = generos_individuais[j];
+                generos_individuais[j] = temp_genero;
             }
         }
     }
 
-    p_genre_field[0] = '\0';
-    for (int i = 0; i < genre_count; i++) {
-        strcat(p_genre_field, individual_genres[i]);
-        if (i < genre_count - 1) strcat(p_genre_field, ", ");
-        free(individual_genres[i]);
+    campo_genero[0] = '\0';
+    for (int i = 0; i < contagem_generos; i++) {
+        strcat(campo_genero, generos_individuais[i]);
+        if (i < contagem_generos - 1) strcat(campo_genero, ", ");
+        free(generos_individuais[i]);
     }
 }
 
-void parse_entry_from_line(EntertainmentEntry *entry_to_fill, char *csv_line) {
-    char *field_pointers[11];
-    int current_field_idx = 0;
-    int inside_quotes = 0;
-    char temp_buffer[MAX_TEXT_LEN * 2];
-    int buffer_pos = 0;
-    char *line_iterator = csv_line;
+void analisar_entrada_da_linha(EntradaEntretenimento *entrada_a_preencher, char *linha_csv) {
+    char *ponteiros_campos[11];
+    int indice_campo_atual = 0;
+    int dentro_de_aspas = 0;
+    char buffer_temp[512];
+    int pos_buffer = 0;
+    char *iterador_linha = linha_csv;
 
-    while (*line_iterator != '\0' && current_field_idx < 11) {
-        if (*line_iterator == '"') {
-            inside_quotes = !inside_quotes;
-        } else if (*line_iterator == ',' && !inside_quotes) {
-            temp_buffer[buffer_pos] = '\0';
-            field_pointers[current_field_idx++] = strdup(temp_buffer);
-            buffer_pos = 0;
+    while (*iterador_linha != '\0' && indice_campo_atual < 11) {
+        if (*iterador_linha == '"') {
+            dentro_de_aspas = !dentro_de_aspas;
+        } else if (*iterador_linha == ',' && !dentro_de_aspas) {
+            buffer_temp[pos_buffer] = '\0';
+            ponteiros_campos[indice_campo_atual++] = strdup(buffer_temp);
+            pos_buffer = 0;
         } else {
-            temp_buffer[buffer_pos++] = *line_iterator;
+            buffer_temp[pos_buffer++] = *iterador_linha;
         }
-        line_iterator++;
+        iterador_linha++;
     }
 
-    temp_buffer[buffer_pos] = '\0';
-    if (current_field_idx < 11) {
-        field_pointers[current_field_idx++] = strdup(temp_buffer);
+    buffer_temp[pos_buffer] = '\0';
+    if (indice_campo_atual < 11) {
+        ponteiros_campos[indice_campo_atual++] = strdup(buffer_temp);
     }
 
-    if (current_field_idx != 11) {
-        memset(entry_to_fill, 0, sizeof(EntertainmentEntry));
-        for (int i = 0; i < current_field_idx; i++) free(field_pointers[i]);
+    if (indice_campo_atual != 11) {
+        memset(entrada_a_preencher, 0, sizeof(EntradaEntretenimento));
+        for (int i = 0; i < indice_campo_atual; i++) free(ponteiros_campos[i]);
         return;
     }
 
-    strcpy(entry_to_fill->entry_id, field_pointers[0]);           assign_na_if_empty(entry_to_fill->entry_id);
-    strcpy(entry_to_fill->category, field_pointers[1]);           assign_na_if_empty(entry_to_fill->category);
-    strcpy(entry_to_fill->program_title, field_pointers[2]);     assign_na_if_empty(entry_to_fill->program_title);
-    strcpy(entry_to_fill->director_name, field_pointers[3]);     assign_na_if_empty(entry_to_fill->director_name);
-    strcpy(entry_to_fill->principal_cast, field_pointers[4]);    assign_na_if_empty(entry_to_fill->principal_cast); arrange_cast_names(entry_to_fill->principal_cast);
-    strcpy(entry_to_fill->origin_country, field_pointers[5]);    assign_na_if_empty(entry_to_fill->origin_country);
-    strcpy(entry_to_fill->add_date, field_pointers[6]);          assign_na_if_empty(entry_to_fill->add_date);
-    entry_to_fill->production_year = atoi(field_pointers[7]);     if (field_pointers[7][0] == '\0') entry_to_fill->production_year = 0;
-    strcpy(entry_to_fill->maturity_rating, field_pointers[8]);    assign_na_if_empty(entry_to_fill->maturity_rating);
-    strcpy(entry_to_fill->content_duration, field_pointers[9]);  assign_na_if_empty(entry_to_fill->content_duration);
-    strcpy(entry_to_fill->genre_list, field_pointers[10]);       assign_na_if_empty(entry_to_fill->genre_list); sort_genre_categories(entry_to_fill->genre_list);
+    strcpy(entrada_a_preencher->id_entrada, ponteiros_campos[0]);           atribuir_na_se_vazio(entrada_a_preencher->id_entrada);
+    strcpy(entrada_a_preencher->categoria, ponteiros_campos[1]);           atribuir_na_se_vazio(entrada_a_preencher->categoria);
+    strcpy(entrada_a_preencher->titulo_programa, ponteiros_campos[2]);     atribuir_na_se_vazio(entrada_a_preencher->titulo_programa);
+    strcpy(entrada_a_preencher->nome_diretor, ponteiros_campos[3]);        atribuir_na_se_vazio(entrada_a_preencher->nome_diretor);
+    strcpy(entrada_a_preencher->elenco_principal, ponteiros_campos[4]);    atribuir_na_se_vazio(entrada_a_preencher->elenco_principal); organizar_nomes_elenco(entrada_a_preencher->elenco_principal);
+    strcpy(entrada_a_preencher->pais_origem, ponteiros_campos[5]);         atribuir_na_se_vazio(entrada_a_preencher->pais_origem);
+    strcpy(entrada_a_preencher->data_adicao, ponteiros_campos[6]);         atribuir_na_se_vazio(entrada_a_preencher->data_adicao);
+    entrada_a_preencher->ano_producao = atoi(ponteiros_campos[7]);          if (ponteiros_campos[7][0] == '\0') entrada_a_preencher->ano_producao = 0;
+    strcpy(entrada_a_preencher->classificacao_maturidade, ponteiros_campos[8]); atribuir_na_se_vazio(entrada_a_preencher->classificacao_maturidade);
+    strcpy(entrada_a_preencher->duracao_conteudo, ponteiros_campos[9]);     atribuir_na_se_vazio(entrada_a_preencher->duracao_conteudo);
+    strcpy(entrada_a_preencher->lista_generos, ponteiros_campos[10]);      atribuir_na_se_vazio(entrada_a_preencher->lista_generos); ordenar_categorias_genero(entrada_a_preencher->lista_generos);
 
     for (int i = 0; i < 11; i++) {
-        free(field_pointers[i]);
+        free(ponteiros_campos[i]);
     }
 }
 
-void prepend_entry(EntertainmentEntry* new_entry) {
-    Element* new_node = (Element*)malloc(sizeof(Element));
-    new_node->entry_data = new_entry;
-    new_node->next_node = head_of_list;
-    head_of_list = new_node;
+void adicionar_entrada_no_inicio(EntradaEntretenimento* nova_entrada) {
+    Elemento* novo_no = (Elemento*)malloc(sizeof(Elemento));
+    novo_no->dados_entrada = nova_entrada;
+    novo_no->proximo_no = cabeca_lista;
+    cabeca_lista = novo_no;
 }
 
-void append_entry(EntertainmentEntry* new_entry) {
-    Element* new_node = (Element*)malloc(sizeof(Element));
-    new_node->entry_data = new_entry;
-    new_node->next_node = NULL;
+void adicionar_entrada_no_fim(EntradaEntretenimento* nova_entrada) {
+    Elemento* novo_no = (Elemento*)malloc(sizeof(Elemento));
+    novo_no->dados_entrada = nova_entrada;
+    novo_no->proximo_no = NULL;
 
-    if (head_of_list == NULL) {
-        head_of_list = new_node;
+    if (cabeca_lista == NULL) {
+        cabeca_lista = novo_no;
         return;
     }
 
-    Element* current_node = head_of_list;
-    while (current_node->next_node != NULL) {
-        current_node = current_node->next_node;
+    Elemento* no_atual = cabeca_lista;
+    while (no_atual->proximo_no != NULL) {
+        no_atual = no_atual->proximo_no;
     }
-    current_node->next_node = new_node;
+    no_atual->proximo_no = novo_no;
 }
 
-void insert_at_position(EntertainmentEntry* new_entry, int desired_pos) {
-    if (desired_pos == 0) {
-        return prepend_entry(new_entry);
+void inserir_na_posicao(EntradaEntretenimento* nova_entrada, int posicao_desejada) {
+    if (posicao_desejada == 0) {
+        return adicionar_entrada_no_inicio(nova_entrada);
     }
 
-    Element* current_node = head_of_list;
-    for (int i = 0; i < desired_pos - 1 && current_node != NULL; i++) {
-        current_node = current_node->next_node;
+    Elemento* no_atual = cabeca_lista;
+    for (int i = 0; i < posicao_desejada - 1 && no_atual != NULL; i++) {
+        no_atual = no_atual->proximo_no;
     }
 
-    if (current_node == NULL) {
+    if (no_atual == NULL) {
         return;
     }
 
-    Element* new_node = (Element*)malloc(sizeof(Element));
-    new_node->entry_data = new_entry;
-    new_node->next_node = current_node->next_node;
-    current_node->next_node = new_node;
+    Elemento* novo_no = (Elemento*)malloc(sizeof(Elemento));
+    novo_no->dados_entrada = nova_entrada;
+    novo_no->proximo_no = no_atual->proximo_no;
+    no_atual->proximo_no = novo_no;
 }
 
-EntertainmentEntry* remove_from_beginning() {
-    if (head_of_list == NULL) return NULL;
+EntradaEntretenimento* remover_do_inicio() {
+    if (cabeca_lista == NULL) return NULL;
 
-    Element* node_to_remove = head_of_list;
-    head_of_list = head_of_list->next_node;
-    EntertainmentEntry* removed_entry = node_to_remove->entry_data;
-    free(node_to_remove);
-    return removed_entry;
+    Elemento* no_a_remover = cabeca_lista;
+    cabeca_lista = cabeca_lista->proximo_no;
+    EntradaEntretenimento* entrada_removida = no_a_remover->dados_entrada;
+    free(no_a_remover);
+    return entrada_removida;
 }
 
-EntertainmentEntry* remove_from_end() {
-    if (head_of_list == NULL) return NULL;
+EntradaEntretenimento* remover_do_fim() {
+    if (cabeca_lista == NULL) return NULL;
 
-    if (head_of_list->next_node == NULL) {
-        EntertainmentEntry* removed_entry = head_of_list->entry_data;
-        free(head_of_list);
-        head_of_list = NULL;
-        return removed_entry;
+    if (cabeca_lista->proximo_no == NULL) {
+        EntradaEntretenimento* entrada_removida = cabeca_lista->dados_entrada;
+        free(cabeca_lista);
+        cabeca_lista = NULL;
+        return entrada_removida;
     }
 
-    Element* current_node = head_of_list;
-    while (current_node->next_node->next_node != NULL) {
-        current_node = current_node->next_node;
+    Elemento* no_atual = cabeca_lista;
+    while (no_atual->proximo_no->proximo_no != NULL) {
+        no_atual = no_atual->proximo_no;
     }
-    EntertainmentEntry* removed_entry = current_node->next_node->entry_data;
-    free(current_node->next_node);
-    current_node->next_node = NULL;
-    return removed_entry;
+    EntradaEntretenimento* entrada_removida = no_atual->proximo_no->dados_entrada;
+    free(no_atual->proximo_no);
+    no_atual->proximo_no = NULL;
+    return entrada_removida;
 }
 
-EntertainmentEntry* remove_at_position(int target_pos) {
-    if (target_pos == 0) return remove_from_beginning();
+EntradaEntretenimento* remover_na_posicao(int posicao_alvo) {
+    if (posicao_alvo == 0) return remover_do_inicio();
 
-    Element* current_node = head_of_list;
-    for (int i = 0; i < target_pos - 1 && current_node != NULL; i++) {
-        current_node = current_node->next_node;
+    Elemento* no_atual = cabeca_lista;
+    for (int i = 0; i < posicao_alvo - 1 && no_atual != NULL; i++) {
+        no_atual = no_atual->proximo_no;
     }
 
-    if (current_node == NULL || current_node->next_node == NULL) return NULL;
+    if (no_atual == NULL || no_atual->proximo_no == NULL) return NULL;
 
-    Element* node_to_remove = current_node->next_node;
-    current_node->next_node = node_to_remove->next_node;
-    EntertainmentEntry* removed_entry = node_to_remove->entry_data;
-    free(node_to_remove);
-    return removed_entry;
+    Elemento* no_a_remover = no_atual->proximo_no;
+    no_atual->proximo_no = no_a_remover->proximo_no;
+    EntradaEntretenimento* entrada_removida = no_a_remover->dados_entrada;
+    free(no_a_remover);
+    return entrada_removida;
 }
 
-void display_entry_details(EntertainmentEntry *current_entry) {
-    char year_as_string[10];
-    if (current_entry->production_year == 0)
-        strcpy(year_as_string, "N/A");
+void exibir_detalhes_entrada(EntradaEntretenimento *entrada_atual) {
+    char ano_como_string[10];
+    if (entrada_atual->ano_producao == 0)
+        strcpy(ano_como_string, "N/A");
     else
-        sprintf(year_as_string, "%d", current_entry->production_year);
+        sprintf(ano_como_string, "%d", entrada_atual->ano_producao);
 
     printf("=> %s ## %s ## %s ## %s ## [%s] ## %s ## %s ## %s ## %s ## %s ## [%s] ##\n",
-        current_entry->entry_id,
-        current_entry->program_title,
-        current_entry->category,
-        current_entry->director_name,
-        current_entry->principal_cast,
-        current_entry->origin_country,
-        current_entry->add_date,
-        year_as_string,
-        current_entry->maturity_rating,
-        current_entry->content_duration,
-        current_entry->genre_list
+        entrada_atual->id_entrada,
+        entrada_atual->titulo_programa,
+        entrada_atual->categoria,
+        entrada_atual->nome_diretor,
+        entrada_atual->elenco_principal,
+        entrada_atual->pais_origem,
+        entrada_atual->data_adicao,
+        ano_como_string,
+        entrada_atual->classificacao_maturidade,
+        entrada_atual->duracao_conteudo,
+        entrada_atual->lista_generos
     );
 }
 
-void print_all_list_elements() {
-    Element* current_node = head_of_list;
-    while (current_node != NULL) {
-        display_entry_details(current_node->entry_data);
-        current_node = current_node->next_node;
+void imprimir_todos_elementos_lista() {
+    Elemento* no_atual = cabeca_lista;
+    while (no_atual != NULL) {
+        exibir_detalhes_entrada(no_atual->dados_entrada);
+        no_atual = no_atual->proximo_no;
     }
 }
 
 int main() {
-    FILE *data_file = fopen("/tmp/disneyplus.csv", "r");
-    if (data_file == NULL) {
-        perror("Error opening the CSV data file");
+    FILE *arquivo_dados = fopen("/tmp/disneyplus.csv", "r");
+    if (arquivo_dados == NULL) {
+        perror("Erro ao abrir o arquivo CSV de dados");
         return 1;
     }
 
-    EntertainmentEntry *all_entries = (EntertainmentEntry*)malloc(sizeof(EntertainmentEntry) * MAX_ENTRIES);
-    int entry_count = 0;
-    char line_buffer[1024];
+    EntradaEntretenimento *todas_as_entradas = (EntradaEntretenimento*)malloc(sizeof(EntradaEntretenimento) * 1500);
+    int contagem_entradas = 0;
+    char buffer_linha[1024];
 
-    fgets(line_buffer, sizeof(line_buffer), data_file);
+    fgets(buffer_linha, sizeof(buffer_linha), arquivo_dados);
 
-    while (fgets(line_buffer, sizeof(line_buffer), data_file) != NULL && entry_count < MAX_ENTRIES) {
-        line_buffer[strcspn(line_buffer, "\n")] = 0;
-        parse_entry_from_line(&all_entries[entry_count], line_buffer);
-        if (all_entries[entry_count].entry_id[0] != '\0') {
-            entry_count++;
+    while (fgets(buffer_linha, sizeof(buffer_linha), arquivo_dados) != NULL && contagem_entradas < 1500) {
+        buffer_linha[strcspn(buffer_linha, "\n")] = 0;
+        analisar_entrada_da_linha(&todas_as_entradas[contagem_entradas], buffer_linha);
+        if (todas_as_entradas[contagem_entradas].id_entrada[0] != '\0') {
+            contagem_entradas++;
         }
     }
 
-    fclose(data_file);
+    fclose(arquivo_dados);
 
-    char user_input_command[MAX_TEXT_LEN];
+    char comando_entrada_usuario[256];
     while (1) {
-        fgets(user_input_command, sizeof(user_input_command), stdin);
-        user_input_command[strcspn(user_input_command, "\n")] = 0;
+        fgets(comando_entrada_usuario, sizeof(comando_entrada_usuario), stdin);
+        comando_entrada_usuario[strcspn(comando_entrada_usuario, "\n")] = 0;
 
-        if (strcmp(user_input_command, "FIM") == 0) {
+        if (strcmp(comando_entrada_usuario, "FIM") == 0) {
             break;
         }
 
-        for (int i = 0; i < entry_count; i++) {
-            if (strcmp(all_entries[i].entry_id, user_input_command) == 0) {
-                append_entry(&all_entries[i]);
+        for (int i = 0; i < contagem_entradas; i++) {
+            if (strcmp(todas_as_entradas[i].id_entrada, comando_entrada_usuario) == 0) {
+                adicionar_entrada_no_fim(&todas_as_entradas[i]);
                 break;
             }
         }
     }
 
-    int total_commands;
-    scanf("%d\n", &total_commands);
+    int total_comandos;
+    scanf("%d\n", &total_comandos);
 
-    for (int k = 0; k < total_commands; k++) {
-        char command_line[100];
-        fgets(command_line, sizeof(command_line), stdin);
-        command_line[strcspn(command_line, "\n")] = 0;
+    for (int k = 0; k < total_comandos; k++) {
+        char linha_comando[100];
+        fgets(linha_comando, sizeof(linha_comando), stdin);
+        linha_comando[strcspn(linha_comando, "\n")] = 0;
 
-        if (strncmp(command_line, "II ", 3) == 0) {
-            char search_id[MAX_TEXT_LEN];
-            sscanf(command_line + 3, "%s", search_id);
-            for (int j = 0; j < entry_count; j++) {
-                if (strcmp(all_entries[j].entry_id, search_id) == 0) {
-                    prepend_entry(&all_entries[j]);
+        if (strncmp(linha_comando, "II ", 3) == 0) {
+            char id_busca[256];
+            sscanf(linha_comando + 3, "%s", id_busca);
+            for (int j = 0; j < contagem_entradas; j++) {
+                if (strcmp(todas_as_entradas[j].id_entrada, id_busca) == 0) {
+                    adicionar_entrada_no_inicio(&todas_as_entradas[j]);
                     break;
                 }
             }
-        } else if (strncmp(command_line, "IF ", 3) == 0) {
-            char search_id[MAX_TEXT_LEN];
-            sscanf(command_line + 3, "%s", search_id);
-            for (int j = 0; j < entry_count; j++) {
-                if (strcmp(all_entries[j].entry_id, search_id) == 0) {
-                    append_entry(&all_entries[j]);
+        } else if (strncmp(linha_comando, "IF ", 3) == 0) {
+            char id_busca[256];
+            sscanf(linha_comando + 3, "%s", id_busca);
+            for (int j = 0; j < contagem_entradas; j++) {
+                if (strcmp(todas_as_entradas[j].id_entrada, id_busca) == 0) {
+                    adicionar_entrada_no_fim(&todas_as_entradas[j]);
                     break;
                 }
             }
-        } else if (strncmp(command_line, "I*", 2) == 0) {
-            int position;
-            char search_id[MAX_TEXT_LEN];
-            sscanf(command_line + 2, "%d %s", &position, search_id);
-            for (int j = 0; j < entry_count; j++) {
-                if (strcmp(all_entries[j].entry_id, search_id) == 0) {
-                    insert_at_position(&all_entries[j], position);
+        } else if (strncmp(linha_comando, "I*", 2) == 0) {
+            int posicao;
+            char id_busca[256];
+            sscanf(linha_comando + 2, "%d %s", &posicao, id_busca);
+            for (int j = 0; j < contagem_entradas; j++) {
+                if (strcmp(todas_as_entradas[j].id_entrada, id_busca) == 0) {
+                    inserir_na_posicao(&todas_as_entradas[j], posicao);
                     break;
                 }
             }
-        } else if (strcmp(command_line, "RI") == 0) {
-            EntertainmentEntry* removed_item = remove_from_beginning();
-            if (removed_item != NULL) printf("(R) %s\n", removed_item->program_title);
-        } else if (strcmp(command_line, "RF") == 0) {
-            EntertainmentEntry* removed_item = remove_from_end();
-            if (removed_item != NULL) printf("(R) %s\n", removed_item->program_title);
-        } else if (strncmp(command_line, "R*", 2) == 0) {
-            int position;
-            sscanf(command_line + 2, "%d", &position);
-            EntertainmentEntry* removed_item = remove_at_position(position);
-            if (removed_item != NULL) printf("(R) %s\n", removed_item->program_title);
+        } else if (strcmp(linha_comando, "RI") == 0) {
+            EntradaEntretenimento* item_removido = remover_do_inicio();
+            if (item_removido != NULL) printf("(R) %s\n", item_removido->titulo_programa);
+        } else if (strcmp(linha_comando, "RF") == 0) {
+            EntradaEntretenimento* item_removido = remover_do_fim();
+            if (item_removido != NULL) printf("(R) %s\n", item_removido->titulo_programa);
+        } else if (strncmp(linha_comando, "R*", 2) == 0) {
+            int posicao;
+            sscanf(linha_comando + 2, "%d", &posicao);
+            EntradaEntretenimento* item_removido = remover_na_posicao(posicao);
+            if (item_removido != NULL) printf("(R) %s\n", item_removido->titulo_programa);
         }
     }
 
-    print_all_list_elements();
+    imprimir_todos_elementos_lista();
 
-    free(all_entries);
+    free(todas_as_entradas);
 
-    Element* current_node = head_of_list;
-    while (current_node != NULL) {
-        Element* next_node = current_node->next_node;
-        free(current_node);
-        current_node = next_node;
+    Elemento* no_atual = cabeca_lista;
+    while (no_atual != NULL) {
+        Elemento* proximo_no = no_atual->proximo_no;
+        free(no_atual);
+        no_atual = proximo_no;
     }
-    head_of_list = NULL;
+    cabeca_lista = NULL;
 
     return 0;
 }
