@@ -119,14 +119,13 @@ public class Ordenacoes {
         }
     }
 
-
-    //Quick Sort:
+    // Quick Sort:
 
     public static void quickSort(int[] vetor, int inicio, int fim) {
         if (inicio < fim) {
             int indicePivo = particionar(vetor, inicio, fim);
-            quickSort(vetor, inicio, indicePivo - 1);  // Lado esquerdo
-            quickSort(vetor, indicePivo + 1, fim);     // Lado direito
+            quickSort(vetor, inicio, indicePivo - 1); // Lado esquerdo
+            quickSort(vetor, indicePivo + 1, fim); // Lado direito
         }
     }
 
@@ -142,7 +141,7 @@ public class Ordenacoes {
         }
 
         trocar(vetor, i + 1, fim);
-        return i + 1;  // Nova posição do pivô
+        return i + 1; // Nova posição do pivô
     }
 
     private static void trocar(int[] vetor, int i, int j) {
