@@ -197,6 +197,8 @@ public class ArvoreBin {
         System.out.println("Numero de elementos da arvore: " + numElementos);
         System.out.println("Log de 2: " + log2);
 
+        arvore.caminharCentral();
+
     }
 
 }
