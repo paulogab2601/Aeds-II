@@ -3,7 +3,6 @@ class Celula {
     Celula prox;
 
     Celula() {
-        this.valor = 0;
         this.prox = null;
     }
 
@@ -58,14 +57,29 @@ public class ListaSimples {
     /* Metodos: */
 
     public void inserirInicio(int x) {
-        Celula tmp = new Celula(x);
-        tmp.prox = primeiro.prox; // insere a celula na lista
-        primeiro.prox = tmp;
+        // Deve inserir o elemento no Nó cabeça, e criar um novo Nó cabeça
 
-        if (ultimo == primeiro)
-            ultimo = tmp;
-        tmp = null;// Descarta tmp
+        /*
+         * Celula tmp = new Celula(x);
+         * tmp.prox = primeiro.prox; // insere a celula na lista
+         * primeiro.prox = tmp;
+         * 
+         * if (ultimo == primeiro)
+         * ultimo = tmp;
+         * tmp = null;// Descarta tmp
+         */
 
+        primeiro.valor = x;
+
+        Celula tmp = new Celula();
+        tmp.prox = primeiro;
+        primeiro = tmp;
+
+        if (ultimo == primeiro.prox) {
+            ultimo = primeiro.prox;
+        }
+
+        BubbleSort();
     }
 
     public void inserir(int pos, int x) throws Exception {
@@ -82,6 +96,8 @@ public class ListaSimples {
         if (nova.prox == null) {
             ultimo = nova;
         }
+
+        BubbleSort();
     }
 
     public int removerFim() throws Exception {
@@ -124,6 +140,8 @@ public class ListaSimples {
         }
 
         removida.prox = null;
+
+        BubbleSort();
 
         return valor;
     }
