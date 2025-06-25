@@ -47,6 +47,25 @@ public class ArvoreBin {
         }
     }
 
+    public void balancear() {
+        if (raiz.esq != null && raiz.dir != null) {
+            System.out.println("Arvore balanceada!");
+
+        } else if (raiz.dir != null) {
+            if (raiz.dir.dir != null) {
+                rotEsq();
+            } else {
+                rotDirEsq();
+            }
+        } else {
+            if (raiz.esq.dir != null) {
+                rotEsqDir();
+            } else {
+                rotDir();
+            }
+        }
+    }
+
     public void caminharPre() {
         caminharPre(raiz);
     }
@@ -65,6 +84,34 @@ public class ArvoreBin {
 
     public int numElementos() {
         return numElementos(raiz);
+    }
+
+    public int getMaior() throws Exception {
+        return getMaior(raiz);
+    }
+
+    public int getMenor() throws Exception {
+        return getMenor(raiz);
+    }
+
+    public void remover(int x) throws Exception {
+        raiz = remover(x, raiz);
+    }
+
+    public void rotEsq() {
+        raiz = rotEsq(raiz);
+    }
+
+    public void rotDir() {
+        raiz = rotDir(raiz);
+    }
+
+    public void rotDirEsq() {
+        raiz = rotDirEsq(raiz);
+    }
+
+    public void rotEsqDir() {
+        raiz = rotEsqDir(raiz);
     }
 
     /* Metodos privados: */
@@ -172,6 +219,81 @@ public class ArvoreBin {
         return 1 + numElementos(i.esq) + numElementos(i.dir);
     }
 
+    private int getMaior(No i) throws Exception {
+        // Na primeira chamada, i = raiz
+        if (i == null)
+            throw new Exception("Erro! Arvore vazia!");
+        if (i.dir == null)
+            return i.valor;
+        return getMaior(i.dir);
+    }
+
+    private int getMenor(No i) throws Exception {
+        if (i == null)
+            throw new Exception("Erro!");
+        if (i.esq == null)
+            return i.valor;
+
+        return getMenor(i.esq);
+    }
+
+    private No remover(int x, No i) throws Exception {
+        if (i == null) {
+            throw new Exception("Erro!");
+        } else if (x < i.valor) {
+            i.esq = remover(x, i.esq);
+        } else if (x > i.valor) {
+            i.dir = remover(x, i.dir);
+        } else if (i.dir == null) {
+            i = i.esq;
+        } else if (i.esq == null) {
+            i = i.dir;
+        } else {
+            i.esq = maiorEsq(i, i.esq);
+        }
+        return i;
+    }
+
+    private No maiorEsq(No i, No j) {
+        if (j.dir == null) {
+            i.valor = j.valor;
+            j = j.esq;
+        } else {
+            j.dir = maiorEsq(i, j.dir);
+        }
+
+        return j;
+    }
+
+    private No rotEsq(No i) {
+        No noDir = i.dir;
+        No noDirEsq = noDir.esq;
+        noDir.esq = i;
+        i.dir = noDirEsq;
+
+        return noDir;
+    }
+
+    private No rotDir(No i) {
+        No noEsq = i.esq;
+        No noEsqDir = noEsq.dir;
+
+        noEsq.dir = i;
+        i.esq = noEsqDir;
+
+        return noEsq;
+    }
+
+    private No rotDirEsq(No i) {
+        i.dir = rotDir(i.dir);
+        return rotEsq(i);
+    }
+
+    private No rotEsqDir(No i) {
+        i.esq = rotEsq(i.esq);
+        return rotDir(i);
+    }
+
     public static void main(String[] args) {
 
         Random rand = new Random();
@@ -189,15 +311,21 @@ public class ArvoreBin {
                 // Sifoda esse erro :)
             }
 
-        } // De acordo com o GPT a logica esta correta
+        }
 
         double log2 = Math.log(numElementos) / Math.log(2);
 
         System.out.println("Altura da arvore: " + arvore.alturaArvore());
         System.out.println("Numero de elementos da arvore: " + numElementos);
-        System.out.println("Log de 2: " + log2);
+        System.out.printf("Log de 2: %.2f \n", log2);
 
-        arvore.caminharCentral();
+        try {
+            System.out.println("Maior Elemento: " + arvore.getMaior());
+            System.out.println("Menor Elemento: " + arvore.getMenor());
+
+        } catch (Exception e) {
+            // Sifoda esse erro :)
+        }
 
     }
 
