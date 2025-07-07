@@ -114,6 +114,18 @@ public class ArvoreBin {
         raiz = rotEsqDir(raiz);
     }
 
+    public int ContaNoDesbalanceado() {
+        return ContaNoDesbalanceado(raiz);
+    }
+
+    public int ContaNoBalanceado() {
+        return ContaNo(raiz) - ContaNoDesbalanceado(raiz);
+    }
+
+    public int NoCom2Filhos() {
+        return NoCom2Filhos(raiz);
+    }
+
     /* Metodos privados: */
 
     private No inserir(int x, No i) throws Exception {
@@ -146,6 +158,19 @@ public class ArvoreBin {
         } else {
             throw new Exception("Erro!");
         }
+    }
+
+    private int NoCom2Filhos(No i) {
+        if (i == null)
+            return 0;
+        if (i.esq != null && i.dir != null) {
+            return 1 + NoCom2Filhos(i.esq) + NoCom2Filhos(i.dir);
+        } else if (i.esq == null) {
+            return 0 + NoCom2Filhos(i.dir);
+        } else if (i.dir == null) {
+            return 0 + NoCom2Filhos(i.esq);
+        }
+        return 0;
     }
 
     private boolean pesquisar(int x, No i) {
@@ -292,6 +317,27 @@ public class ArvoreBin {
     private No rotEsqDir(No i) {
         i.esq = rotEsq(i.esq);
         return rotDir(i);
+    }
+
+    private int ContaNoDesbalanceado(No i) {
+        int alturaEsq = altura(i.esq);
+        int alturaDir = altura(i.dir);
+        int desbalanceado = Math.abs(alturaEsq - alturaDir) > 1 ? 1 : 0;
+
+        return desbalanceado + ContaNoDesbalanceado(i.esq) + ContaNoDesbalanceado(i.dir);
+    }
+
+    private int ContaNo(No i) {
+        if (i == null)
+            return 0;
+
+        return 1 + ContaNo(i.dir) + ContaNo(i.esq);
+    }
+
+    private int altura(No i) {
+        if (i == null)
+            return 0;
+        return 1 + Math.max(altura(i.esq), altura(i.dir));
     }
 
     public static void main(String[] args) {
